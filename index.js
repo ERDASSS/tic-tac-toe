@@ -5,6 +5,7 @@ const EMPTY = ' ';
 const container = document.getElementById('fieldWrapper');
 let field = [[EMPTY, EMPTY, EMPTY],[EMPTY, EMPTY, EMPTY],[EMPTY, EMPTY, EMPTY]];
 let player = CROSS;
+let end = false;
 
 startGame();
 addResetListener();
@@ -31,21 +32,65 @@ function renderGrid (dimension) {
 function cellClickHandler (row, col) {
     console.log(`Clicked on cell: ${row}, ${col}`);
 
-    if (checkCell(row, col)) {
+    if (checkCell(row, col) && !end) {
         renderSymbolInCell(player, row, col);
         field[row][col] = player;
-        player = player === CROSS ? ZERO : CROSS; 
+        if (checkWin() === EMPTY) {
+            player = player === CROSS ? ZERO : CROSS;
+            let emptyCounter = 0;
+            for (let i = 0; i < 3; i++) {
+                if (field[i].includes(EMPTY)) {
+                    emptyCounter++;
+                }
+            }
+            if (emptyCounter === 0) 
+                alert('Tie')
+        } else {
+            end = true;
+            alert(player)
+        }
     }
-
-    
     console.log(field);
+}
+
+function checkWin () {
+    for (let i = 0; i < 3; i++) {
+        if (field[i][0] === field[i][1] && field[i][1] === field[i][2] && field[i][0] != EMPTY) {
+            renderSymbolInCell(player, i, 0, "#ff0000")
+            renderSymbolInCell(player, i, 1, "#ff0000")
+            renderSymbolInCell(player, i, 2, "#ff0000")
+            return player;
+        }
+
+        if (field[0][i] === field[1][i] && field[1][i] === field[2][i] && field[2][i] != EMPTY) {
+            renderSymbolInCell(player, 0, i, "#ff0000")
+            renderSymbolInCell(player, 1, i, "#ff0000")
+            renderSymbolInCell(player, 2, i, "#ff0000")
+            return player;
+        }
+
+        if (field[0][0] === field[1][1] && field[1][1] === field[2][2] && field[2][2] != EMPTY) {
+            renderSymbolInCell(player, 0, 0, "#ff0000")
+            renderSymbolInCell(player, 1, 1, "#ff0000")
+            renderSymbolInCell(player, 2, 2, "#ff0000")
+            return player;
+        }
+
+        if (field[2][0] === field[1][1] && field[1][1] === field[0][2] && field[0][2] != EMPTY) {
+            renderSymbolInCell(player, 2, 0, "#ff0000")
+            renderSymbolInCell(player, 1, 1, "#ff0000")
+            renderSymbolInCell(player, 0, 2, "#ff0000")
+            return player;
+        }
+    }   
+    return EMPTY;
 }
 
 function checkCell (row, col) {
     return field[row][col] === EMPTY ? true : false;
 }
 
-function renderSymbolInCell (symbol, row, col, color = '#333') {
+function renderSymbolInCell (symbol, row, col, color = '#336') {
     const targetCell = findCell(row, col);
 
     targetCell.textContent = symbol;
@@ -64,6 +109,13 @@ function addResetListener () {
 
 function resetClickHandler () {
     console.log('reset!');
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            field[i][j] = EMPTY;
+            renderSymbolInCell(EMPTY, i, j);
+            end = false;
+        }
+    }
 }
 
 
